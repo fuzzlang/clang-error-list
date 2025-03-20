@@ -111,12 +111,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             })
-            .catch(error => {
-                console.error('Error loading error index:', error);
-                
-                // Fallback to hardcoded errors if JSON loading fails
-                loadHardcodedErrors();
-            });
     }
     
     // Fallback function with hardcoded errors
