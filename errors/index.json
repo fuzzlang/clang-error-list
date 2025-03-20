@@ -1,0 +1,7 @@
+{
+  "errors": [
+    "err_decomp_decl_context",
+    "err_expected_semi_after_declaration",
+    "err_undeclared_var_use"
+  ]
+} 

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clang Error Documentation</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Clang Error Documentation</h1>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search for error codes...">
+                <button id="searchButton">Search</button>
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#error-list">Error List</a></li>
+                <li><a href="#contributing">Contributing</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section id="overview">
+            <h2>Overview</h2>
+            <p>
+                Welcome to the Clang Error Documentation. This resource provides detailed information about Clang compiler errors,
+                including error codes, explanations, and code examples demonstrating the errors and how to fix them.
+            </p>
+            <p>
+                Clang is a C, C++, Objective-C, and Objective-C++ compiler which is designed to be compatible with GCC.
+                Understanding compiler errors is essential for effective debugging and code improvement.
+            </p>
+        </section>
+
+        <section id="error-list">
+            <h2>Error List</h2>
+            <p>Below is a comprehensive list of Clang error codes with explanations and examples:</p>
+
+            <!-- 错误列表将在这里动态加载 -->
+            <div id="error-list-container"></div>
+        </section>
+
+        <section id="contributing">
+            <h2>Contributing</h2>
+            <p>
+                This documentation is a community effort. If you'd like to contribute by adding new error codes, 
+                improving explanations, or fixing issues, please follow these steps:
+            </p>
+            <ol>
+                <li>Fork the repository</li>
+                <li>Add your error code following the template format</li>
+                <li>Submit a pull request with a clear description of your changes</li>
+            </ol>
+            <p>
+                When adding a new error, please include:
+            </p>
+            <ul>
+                <li>The error code identifier</li>
+                <li>A clear description of when the error occurs</li>
+                <li>Example code that triggers the error</li>
+                <li>An explanation of why the error occurs</li>
+                <li>Example code showing how to fix the error</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 Clang Error Documentation. All rights reserved.</p>
+            <p>This is an unofficial resource and is not affiliated with the LLVM Project or Clang.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+
+    <script>
+        // Pre-loaded error data
+        const errorData = {
+            errors: [
+                {
+                    id: "err_decomp_decl_context",
+                    description: "This error occurs when structured bindings (C++17 feature) are used in an invalid context. Structured bindings can only be used in specific contexts such as local variable declarations, for-range init-statements, and condition variables.",
+                    exampleCode: "struct S { int a, b, c; };\n\nnamespace InvalidContext {\n    class A {\n        auto [a, b, c] = S(); // expected-error {{not permitted in this context}}\n    };\n}",
+                    explanation: "In this example, the error occurs because structured bindings are being used as a class member, which is not allowed. Structured bindings can only be used for local variables, not for class members.",
+                    fixedCode: "struct S { int a, b, c; };\n\nnamespace ValidContext {\n    class A {\n        S s;  // Use a regular member variable\n        \n        void method() {\n            auto [a, b, c] = S();  // Valid: local variable in method\n        }\n    };\n}"
+                },
+                {
+                    id: "err_expected_semi_after_declaration",
+                    description: "This error occurs when a semicolon is missing after a declaration. In C and C++, declarations must be terminated with a semicolon.",
+                    exampleCode: "void function() {\n    int x = 10    // expected-error {{expected ';' after declaration}}\n    int y = 20;\n}",
+                    explanation: "The error occurs because the declaration of variable 'x' is not terminated with a semicolon. In C and C++, all declarations must end with a semicolon.",
+                    fixedCode: "void function() {\n    int x = 10;   // Added semicolon\n    int y = 20;\n}"
+                },
+                {
+                    id: "err_undeclared_var_use",
+                    description: "This error occurs when a variable is used without being declared first. In C and C++, all variables must be declared before they can be used.",
+                    exampleCode: "void function() {\n    value = 42;  // expected-error {{use of undeclared identifier 'value'}}\n    \n    for (i = 0; i < 10; i++) {  // expected-error {{use of undeclared identifier 'i'}}\n        // ...\n    }\n}",
+                    explanation: "The error occurs because the variables 'value' and 'i' are being used without being declared first. In C and C++, all variables must be declared before they can be used in the scope where they are referenced.",
+                    fixedCode: "void function() {\n    int value;  // Declare the variable\n    value = 42;\n    \n    for (int i = 0; i < 10; i++) {  // Declare i in the for loop\n        // ...\n    }\n}"
+                }
+            ]
+        };
+    </script>
+</body>
+</html> 

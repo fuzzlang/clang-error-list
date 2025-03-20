@@ -1,0 +1,7 @@
+{
+  "id": "err_expected_semi_after_declaration",
+  "description": "This error occurs when a semicolon is missing after a declaration. In C and C++, declarations must be terminated with a semicolon.",
+  "exampleCode": "void function() {\n    int x = 10    // expected-error {{expected ';' after declaration}}\n    int y = 20;\n}",
+  "explanation": "The error occurs because the declaration of variable 'x' is not terminated with a semicolon. In C and C++, all declarations must end with a semicolon.",
+  "fixedCode": "void function() {\n    int x = 10;   // Added semicolon\n    int y = 20;\n}"
+} 

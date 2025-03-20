@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clang Error Documentation - Admin</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Clang Error Documentation - Admin</h1>
+        </div>
+    </header>
+
+    <main class="container">
+        <section id="add-error">
+            <h2>Add New Error</h2>
+            <form id="error-form">
+                <div class="form-group">
+                    <label for="error-id">Error ID:</label>
+                    <input type="text" id="error-id" required placeholder="e.g., err_decomp_decl_context">
+                </div>
+                
+                <div class="form-group">
+                    <label for="error-description">Description:</label>
+                    <textarea id="error-description" required rows="4" placeholder="Describe when this error occurs..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="error-example">Example Code (that produces the error):</label>
+                    <textarea id="error-example" required rows="8" placeholder="Code example that triggers the error..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="error-explanation">Explanation:</label>
+                    <textarea id="error-explanation" required rows="4" placeholder="Explain why the error occurs..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="error-fixed">Fixed Code:</label>
+                    <textarea id="error-fixed" required rows="8" placeholder="Code example showing how to fix the error..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit">Add Error</button>
+                    <button type="button" id="preview-button">Preview</button>
+                </div>
+            </form>
+        </section>
+        
+        <section id="preview-section" style="display: none;">
+            <h2>Preview</h2>
+            <div id="preview-container"></div>
+            <button id="back-to-form">Back to Form</button>
+        </section>
+    </main>
+
+    <script src="admin.js"></script>
+</body>
+</html> 
