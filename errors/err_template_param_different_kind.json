@@ -1,0 +1,7 @@
+{
+  "id": "err_template_param_different_kind",
+  "description": "This error occurs when a template is redeclared with a template parameter that has a different kind (type parameter vs non-type parameter) from the original declaration.",
+  "exampleCode": "template<typename T> extern T v1;\ntemplate<int I> int v1;",
+  "explanation": "The error occurs because the template parameter in the first declaration is a type parameter (typename T), but in the second declaration, it's a non-type parameter (int I). When redeclaring a template, the corresponding template parameters must be of the same kind.",
+  "fixedCode": "// Keep the same kind of template parameter in all declarations\ntemplate<typename T> extern T v1;\ntemplate<typename U> int v1; // Use a type parameter, not a non-type parameter"
+} 

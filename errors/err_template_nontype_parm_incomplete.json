@@ -1,0 +1,7 @@
+{
+  "id": "err_template_nontype_parm_incomplete",
+  "description": "This error occurs when a non-type template parameter has an incomplete type. Non-type template parameters must have complete types.",
+  "exampleCode": "struct A; // Forward declaration only\n\ntemplate<A a> class X0;",
+  "explanation": "The error occurs because the non-type template parameter 'a' has the incomplete type 'A'. At the point of the template declaration, 'A' is only forward-declared and not fully defined, so its size and layout are unknown.",
+  "fixedCode": "struct A {}; // Define A first\n\ntemplate<A a> class X0; // Now A is a complete type"
+} 

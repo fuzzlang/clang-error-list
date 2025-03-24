@@ -1,7 +1,17 @@
 {
   "errors": [
+    "err_template_nontype_parm_bad_type",
+    "err_template_nontype_parm_different_type",
+    "err_template_nontype_parm_incomplete",
     "err_decomp_decl_context",
     "err_expected_semi_after_declaration",
+    "err_template_nontype_parm_not_structural",
+    "err_template_nontype_parm_rvalue_ref",
+    "err_template_outside_namespace_or_class_scope",
+    "err_template_param_default_arg_missing",
+    "err_template_param_default_arg_redefinition",
+    "err_template_param_different_kind",
+    "err_template_param_list_different_arity",
     "err_undeclared_var_use"
   ]
 } 

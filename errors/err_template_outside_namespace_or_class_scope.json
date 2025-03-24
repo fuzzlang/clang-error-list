@@ -1,0 +1,7 @@
+{
+  "id": "err_template_outside_namespace_or_class_scope",
+  "description": "This error occurs when a template is declared outside of namespace or class scope. Templates can only be declared in namespace or class scope.",
+  "exampleCode": "namespace PR46859 {\n  extern \"bogus\"\n    template<int> struct X {};\n}",
+  "explanation": "The error occurs because the template is declared in an invalid scope. Templates can only be declared in namespace or class scope, not inside linkage specifications or other non-namespace, non-class scopes.",
+  "fixedCode": "namespace PR46859 {\n  // Declare the template directly in namespace scope\n  template<int> struct X {};\n  \n  // Or use a valid linkage specification\n  extern \"C++\" {\n    template<int> struct Y {};\n  }\n}"
+} 

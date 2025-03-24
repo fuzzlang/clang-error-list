@@ -1,0 +1,7 @@
+{
+  "id": "err_template_nontype_parm_different_type",
+  "description": "This error occurs when a template is redeclared with a non-type template parameter that has a different type from the original declaration.",
+  "exampleCode": "template<typename T, T Value> struct X2a;\n\ntemplate<typename T, int Size> struct X2b;\n\ntemplate<typename T>\nclass X3 {\n  template<typename U, U Value> friend struct X2a;\n  template<typename U, T Value> friend struct X2b; \n};",
+  "explanation": "The error occurs when X3<long> is instantiated because the friend declaration of X2b uses T (which becomes 'long') as the type of the non-type parameter Value, but the original declaration of X2b used 'int' as the type of the non-type parameter.",
+  "fixedCode": "template<typename T, T Value> struct X2a;\n\ntemplate<typename T, int Size> struct X2b;\n\ntemplate<typename T>\nclass X3 {\n  template<typename U, U Value> friend struct X2a;\n  \n  // Use the same type (int) as in the original declaration\n  template<typename U, int Value> friend struct X2b; \n};"
+} 

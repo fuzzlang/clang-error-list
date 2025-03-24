@@ -1,0 +1,7 @@
+{
+  "id": "err_template_param_default_arg_redefinition",
+  "description": "This error occurs when a template parameter's default argument is redefined in a subsequent declaration of the same template.",
+  "exampleCode": "template<class T1, \n         class T2 = int>\n  class B3;\n\ntemplate<class T1, typename T2> class B3;\n\ntemplate<class T1, \n         typename T2 = float>\n  class B3;",
+  "explanation": "The error occurs because the template parameter T2's default argument is redefined in a subsequent declaration. In the first declaration, T2 has a default argument of 'int', but in the third declaration, it's redefined as 'float'. Default arguments for template parameters can only be specified once.",
+  "fixedCode": "// Only specify the default argument in one declaration\ntemplate<class T1, \n         class T2 = int>\n  class B3;\n\n// Don't redefine the default in subsequent declarations\ntemplate<class T1, typename T2> class B3;"
+} 
