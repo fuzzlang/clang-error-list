@@ -62,11 +62,17 @@ class DiagnosticParser {
             'tdfiles/DiagnosticASTKinds.td',
             'tdfiles/DiagnosticCommonKinds.td',
             'tdfiles/DiagnosticDriverKinds.td',
-            'tdfiles/DiagnosticFrontendKinds.td'
-            // Reduced number of files to load initially
+            'tdfiles/DiagnosticFrontendKinds.td',
+            'tdfiles/DiagnosticLexKinds.td',
+            'tdfiles/DiagnosticParseKinds.td',
+            'tdfiles/DiagnosticSerializationKinds.td',
+            'tdfiles/DiagnosticAnalysisKinds.td',
+            'tdfiles/DiagnosticGroups.td',
+            'tdfiles/DiagnosticIndexName.td',
+            'tdfiles/DiagnosticCrossTUKinds.td'
         ];
 
-        console.log('Loading diagnostic files...');
+        console.log('Loading all diagnostic files...');
 
         try {
             // Use Promise.all to load files in parallel
@@ -106,22 +112,63 @@ class DiagnosticParser {
     }
 
     parseContent(content, fileName) {
-        // Optimized regex matching
-        const pattern = /def\s+(\w+)\s*:\s*(Error|Warning|Note|Remark|Extension|ExtWarn)<\s*"([^"]+(?:\s*"[^"]*)*?)"\s*>/g;
+        // Prepare regex to precisely match definition formats in TD files
+        const defPattern = /def\s+(\w+)(?:\s*<[^>]*>)?\s*:\s*(Error|Warning|Note|Remark|Extension|ExtWarn)<\s*"([^"]+(?:\s*"[^"]*)*?)"\s*>/g;
+        
+        // Preprocess content - handle multi-line definitions
+        let processedContent = '';
+        let inDefinition = false;
+        let currentDefinition = '';
+        
+        const lines = content.split('\n');
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            
+            // Start new definition
+            if (line.startsWith('def ')) {
+                if (currentDefinition) {
+                    processedContent += currentDefinition + '\n';
+                }
+                currentDefinition = line;
+                inDefinition = true;
+            } 
+            // Continue current definition
+            else if (inDefinition && line) {
+                currentDefinition += ' ' + line;
+            }
+            
+            // Check if definition is complete
+            if (inDefinition && line.includes('>;')) {
+                processedContent += currentDefinition + '\n';
+                currentDefinition = '';
+                inDefinition = false;
+            }
+        }
+        
+        // Add the last definition (if any)
+        if (currentDefinition) {
+            processedContent += currentDefinition;
+        }
+        
+        // Use regex to match all definitions
         let match;
-
-        while ((match = pattern.exec(content)) !== null) {
+        while ((match = defPattern.exec(processedContent)) !== null) {
             const diagId = match[1];
             const diagType = match[2];
-            // Simplify string processing
             let messageTemplate = match[3].replace(/"\s*"/g, '').replace(/\s+/g, ' ').trim();
             
+            // Save diagnostic info to Map
             this.diagnostics.set(diagId, {
                 template: messageTemplate,
                 type: diagType,
                 fileName: fileName
             });
             this.fileMapping.set(diagId, fileName);
+            
+            // Debug log
+            if (diagId.includes('template') && diagId.includes('shadow')) {
+                console.log(`Found diagnostic: ${diagId} in ${fileName}`);
+            }
         }
     }
 
@@ -194,82 +241,67 @@ class DiagnosticParser {
         const results = [];
         const queryLower = query.toLowerCase().trim();
         
-        // First try exact matches in expanded templates
-        this.expandedTemplates.forEach((variants, diagId) => {
-            for (const variant of variants) {
-                if (variant.toLowerCase().includes(queryLower)) {
-                    const diagInfo = this.diagnostics.get(diagId);
-                    if (diagInfo) {
-                        results.push({
-                            diagId,
-                            template: diagInfo.template,
-                            type: diagInfo.type,
-                            fileName: this.fileMapping.get(diagId) || "Unknown file",
-                            similarity: 1.0,
-                            matchType: "expanded",
-                            matchedVariant: variant
-                        });
-                        return;
-                    }
+        // Split query into words
+        const queryWords = queryLower.split(/\s+/).filter(w => w.length > 0);
+        console.log(`Searching for: "${queryLower}" (${queryWords.length} words)`);
+        
+        // Search in all diagnostics
+        this.diagnostics.forEach((diagInfo, diagId) => {
+            // Prepare strings for comparison
+            const template = diagInfo.template.toLowerCase();
+            const id = diagId.toLowerCase();
+            
+            // Exact matching logic
+            let matched = false;
+            let matchScore = 0;
+            
+            // 1. Check if ID exactly matches query
+            if (id === queryLower) {
+                matchScore = 1.0;
+                matched = true;
+            }
+            
+            // 2. Check if ID contains query
+            else if (id.includes(queryLower)) {
+                matchScore = 0.9;
+                matched = true;
+            }
+            
+            // 3. Check if template contains full query
+            else if (template.includes(queryLower)) {
+                matchScore = 0.8;
+                matched = true;
+            }
+            
+            // 4. Check if all query words appear in template or ID
+            else if (queryWords.length > 0) {
+                const wordsMatched = queryWords.every(word => 
+                    template.includes(word) || id.includes(word)
+                );
+                
+                if (wordsMatched) {
+                    matchScore = 0.7;
+                    matched = true;
                 }
+            }
+            
+            // If there's a match, add to results
+            if (matched) {
+                results.push({
+                    diagId,
+                    template: diagInfo.template,
+                    type: diagInfo.type,
+                    fileName: diagInfo.fileName,
+                    similarity: matchScore,
+                    matchType: "direct"
+                });
             }
         });
         
-        // If no expanded matches, try other matching strategies
-        if (results.length === 0) {
-            // Limit the number of diagnostics to check for performance
-            const MAX_CHECKS = 1000;
-            let checked = 0;
-            
-            // Try direct matching on diagnostic IDs first
-            this.diagnostics.forEach((diagInfo, diagId) => {
-                if (checked >= MAX_CHECKS) return;
-                checked++;
-                
-                if (diagId.toLowerCase().includes(queryLower)) {
-                    results.push({
-                        diagId,
-                        template: diagInfo.template,
-                        type: diagInfo.type,
-                        fileName: this.fileMapping.get(diagId) || "Unknown file",
-                        similarity: 0.9,
-                        matchType: "id"
-                    });
-                    return;
-                }
-                
-                // Then try template matching
-                const templateLower = diagInfo.template.toLowerCase();
-                if (templateLower.includes(queryLower)) {
-                    results.push({
-                        diagId,
-                        template: diagInfo.template,
-                        type: diagInfo.type,
-                        fileName: this.fileMapping.get(diagId) || "Unknown file",
-                        similarity: 0.8,
-                        matchType: "template"
-                    });
-                    return;
-                }
-                
-                // Finally try fuzzy matching
-                const similarity = this.calculateSimilarity(queryLower, templateLower);
-                if (similarity > threshold) {
-                    results.push({
-                        diagId,
-                        template: diagInfo.template,
-                        type: diagInfo.type,
-                        fileName: this.fileMapping.get(diagId) || "Unknown file",
-                        similarity,
-                        matchType: "fuzzy"
-                    });
-                }
-            });
-        }
-        
-        // Sort by similarity
+        // Sort and return results
+        console.log(`Found ${results.length} matches`);
         results.sort((a, b) => b.similarity - a.similarity);
-        return results.slice(0, 10); // Limit to top 10 results
+        return results.slice(0, 10);
     }
 
     calculateSimilarity(s1, s2) {
@@ -367,6 +399,30 @@ function searchInTDFiles(query) {
     });
 }
 
+// Try to load code file for a diagnostic from success_files folder
+async function tryLoadCodeFileForDiagnostic(diagId) {
+    // Try different file extensions
+    const extensions = ['cpp', 'c', 'cl'];
+    
+    for (const ext of extensions) {
+        const url = `success_files/${diagId}.${ext}`;
+        
+        try {
+            const response = await fetch(url);
+            if (response.ok) {
+                return {
+                    code: await response.text(),
+                    extension: ext
+                };
+            }
+        } catch (error) {
+            console.log(`Failed to load ${url}: ${error.message}`);
+        }
+    }
+    
+    return null; // No code file found
+}
+
 // Display TD matches
 async function displayTDMatches(results, query) {
     console.log('Displaying TD matches:', results);
@@ -381,10 +437,18 @@ async function displayTDMatches(results, query) {
         // Try to load corresponding JSON file
         const jsonData = await tryLoadJsonForDiagnostic(diagnostic.diagId);
         
+        // If JSON doesn't exist, try to load code file
+        let codeData = null;
+        if (!jsonData) {
+            codeData = await tryLoadCodeFileForDiagnostic(diagnostic.diagId);
+        }
+        
         // Create appropriate card
         const card = jsonData ? 
             createEnhancedErrorCard(jsonData, diagnostic) : 
-            createDiagnosticCard(diagnostic);
+            (codeData ? 
+                createCodeOnlyErrorCard(diagnostic, codeData) : 
+                createDiagnosticCard(diagnostic));
         
         fragment.appendChild(card);
     }
@@ -467,6 +531,42 @@ function createDiagnosticCard(diagnostic) {
         <div class="error-explanation">
             <h4>Explanation:</h4>
             <p>This is a Clang diagnostic. For more information, check the Clang documentation.</p>
+        </div>
+    `;
+    
+    return card;
+}
+
+// Create card for diagnostic with only code example
+function createCodeOnlyErrorCard(diagnostic, codeData) {
+    const card = document.createElement('div');
+    card.className = 'error-card';
+    card.id = diagnostic.diagId;
+    
+    // Helper function to escape HTML special characters
+    function escapeHtml(text) {
+        return text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+    
+    card.innerHTML = `
+        <h3>${diagnostic.diagId}</h3>
+        <div class="error-description">
+            <p><strong>Message Template:</strong> ${escapeHtml(diagnostic.template)}</p>
+            <p><strong>Type:</strong> ${diagnostic.type}</p>
+            <p><strong>Source:</strong> ${diagnostic.fileName.split('/').pop()}</p>
+        </div>
+        <div class="code-example">
+            <h4>Example Code:</h4>
+            <pre><code class="language-${codeData.extension}">${escapeHtml(codeData.code)}</code></pre>
+        </div>
+        <div class="error-explanation">
+            <h4>Explanation:</h4>
+            <p>This is an example that demonstrates the error. For more details, check the Clang documentation.</p>
         </div>
     `;
     
