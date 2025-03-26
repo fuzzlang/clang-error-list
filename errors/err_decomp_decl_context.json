@@ -1,7 +1,0 @@
-{
-  "id": "err_decomp_decl_context",
-  "description": "This error occurs when structured bindings (C++17 feature) are used in an invalid context. Structured bindings can only be used in specific contexts such as local variable declarations, for-range init-statements, and condition variables.",
-  "exampleCode": "struct S { int a, b, c; };\n\nnamespace InvalidContext {\n    class A {\n        auto [a, b, c] = S(); // expected-error {{not permitted in this context}}\n    };\n}",
-  "explanation": "In this example, the error occurs because structured bindings are being used as a class member, which is not allowed. Structured bindings can only be used for local variables, not for class members.",
-  "fixedCode": "struct S { int a, b, c; };\n\nnamespace ValidContext {\n    class A {\n        S s;  // Use a regular member variable\n        \n        void method() {\n            auto [a, b, c] = S();  // Valid: local variable in method\n        }\n    };\n}"
-} 

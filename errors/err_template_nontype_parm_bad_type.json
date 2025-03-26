@@ -1,7 +1,7 @@
 {
   "id": "err_template_nontype_parm_bad_type",
   "description": "This error occurs when a non-type template parameter has a type that is not allowed for non-type template parameters.",
-  "exampleCode": "template<_Atomic float ci> struct AtomicFloat;",
+  "exampleCode": "template<_Atomic float ci> struct AtomicFloat; // expected-error {{cannot have type '_Atomic(float)'}}",
   "explanation": "The error occurs because non-type template parameters cannot have certain types, such as '_Atomic(float)'. Non-type template parameters must have integral, enumeration, pointer, reference, or (in C++20) structural types.",
   "fixedCode": "// Instead, use a regular type parameter and constrain it\ntemplate<typename T>\nstruct AtomicFloat {\n    static_assert(std::is_same_v<T, float>, \"Type must be float\");\n    // ...\n};"
 } 

@@ -1,7 +1,0 @@
-{
-  "id": "err_undeclared_var_use",
-  "description": "This error occurs when a variable is used without being declared first. In C and C++, all variables must be declared before they can be used.",
-  "exampleCode": "void function() {\n    value = 42;  // expected-error {{use of undeclared identifier 'value'}}\n    \n    for (i = 0; i < 10; i++) {  // expected-error {{use of undeclared identifier 'i'}}\n        // ...\n    }\n}",
-  "explanation": "The error occurs because the variables 'value' and 'i' are being used without being declared first. In C and C++, all variables must be declared before they can be used in the scope where they are referenced.",
-  "fixedCode": "void function() {\n    int value;  // Declare the variable\n    value = 42;\n    \n    for (int i = 0; i < 10; i++) {  // Declare i in the for loop\n        // ...\n    }\n}"
-} 
