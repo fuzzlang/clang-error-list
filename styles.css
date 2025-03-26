@@ -204,4 +204,100 @@ footer p {
     0% { background-color: rgba(74, 107, 223, 0.2); }
     50% { background-color: rgba(74, 107, 223, 0.5); }
     100% { background-color: transparent; }
+}
+
+/* Modern pagination controls */
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 30px auto;
+    gap: 15px;
+    background: white;
+    padding: 15px 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    border: 1px solid rgba(74, 107, 223, 0.15);
+}
+
+.pagination-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 18px;
+    background-color: #4a6bdf;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(74, 107, 223, 0.3);
+    min-width: 110px;
+}
+
+.pagination-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background-color: #3a5bcf;
+    box-shadow: 0 4px 8px rgba(74, 107, 223, 0.4);
+}
+
+.pagination-btn:active:not(:disabled) {
+    transform: translateY(1px);
+    box-shadow: 0 2px 3px rgba(74, 107, 223, 0.3);
+}
+
+.pagination-btn:disabled {
+    background-color: #eaecf1;
+    color: #a0a0a0;
+    cursor: not-allowed;
+    box-shadow: none;
+    border: 1px solid #e0e0e0;
+}
+
+.page-info {
+    font-size: 16px;
+    color: #444;
+    font-weight: 600;
+    background: #f5f7ff;
+    padding: 10px 18px;
+    border-radius: 8px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+    min-width: 100px;
+    text-align: center;
+    border: 1px solid rgba(74, 107, 223, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 500px) {
+    .pagination-controls {
+        flex-direction: column;
+        padding: 15px;
+    }
+    
+    .pagination-btn, .page-info {
+        width: 100%;
+        min-width: 0;
+    }
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
+    color: #666;
+}
+
+.no-results {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-style: italic;
 } 

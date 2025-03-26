@@ -250,7 +250,7 @@ class DiagnosticParser {
         // If we found exact matches, return them
         if (exactMatches.length > 0) {
             console.log(`Found ${exactMatches.length} exact matches`);
-            return exactMatches.slice(0, 10);
+            return exactMatches;
         }
         
         // Second stage: consider placeholder-based matches
@@ -258,7 +258,7 @@ class DiagnosticParser {
         const placeholderMatches = this.findPlaceholderMatches(queryLower, queryWords);
         
         console.log(`Found ${placeholderMatches.length} placeholder-based matches`);
-        return placeholderMatches.slice(0, 10);
+        return placeholderMatches;
     }
 
     // Find exact matches without considering placeholders
@@ -545,6 +545,11 @@ class DiagnosticParser {
     }
 }
 
+// Global variables for pagination
+let currentSearchResults = [];
+let currentPage = 1;
+const resultsPerPage = 10;
+
 // Perform search function
 function performSearch(query) {
     query = query.toLowerCase().trim();
@@ -552,42 +557,183 @@ function performSearch(query) {
     
     console.log('Searching for:', query);
     
-    // First, search in existing error cards
-    const errorItems = document.querySelectorAll('.error-card');
-    let foundCount = 0;
+    // Reset pagination
+    currentPage = 1;
     
-    errorItems.forEach(item => {
-        const id = item.id.toLowerCase();
-        const content = item.textContent.toLowerCase();
+    // Always search in TD files
+    searchInTDFiles(query);
+}
+
+// Search in TD files
+function searchInTDFiles(query) {
+    console.log('Searching in TD files');
+    const errorListContainer = document.getElementById('error-list-container');
+    errorListContainer.innerHTML = '<div class="loading">Searching...</div>';
+    
+    // Make sure the parser is initialized
+    window.diagnosticParser.initialize().then(() => {
+        // Get all matching results from diagnostic parser
+        const results = window.diagnosticParser.searchDiagnostic(query, 0.4); // Lower threshold to get more results
         
-        if (id.includes(query) || content.includes(query)) {
-            item.style.display = 'block';
-            foundCount++;
+        // Store results globally for pagination
+        currentSearchResults = results;
+        
+        if (results.length > 0) {
+            // Display current page of results
+            displayPageResults(query);
         } else {
-            item.style.display = 'none';
+            // Update search results info to show no results
+            updateSearchResultsInfo(query, 0);
+            errorListContainer.innerHTML = '<div class="no-results">No results found</div>';
+            
+            // Scroll to error list section
+            document.getElementById('error-list').scrollIntoView({ behavior: 'smooth' });
+        }
+    });
+}
+
+// Display current page of results
+function displayPageResults(query) {
+    const startIndex = (currentPage - 1) * resultsPerPage;
+    const endIndex = Math.min(startIndex + resultsPerPage, currentSearchResults.length);
+    
+    const currentPageResults = currentSearchResults.slice(startIndex, endIndex);
+    
+    displayTDMatches(currentPageResults, query, {
+        currentPage,
+        totalPages: Math.ceil(currentSearchResults.length / resultsPerPage),
+        totalResults: currentSearchResults.length
+    });
+}
+
+// Display TD matches with pagination
+async function displayTDMatches(results, query, pagination) {
+    console.log('Displaying TD matches:', results);
+    
+    const errorListContainer = document.getElementById('error-list-container');
+    errorListContainer.innerHTML = ''; // Clear existing content
+    
+    const fragment = document.createDocumentFragment();
+    
+    // Process each result
+    const promises = results.map(async diagnostic => {
+        // Try to load corresponding JSON file
+        const jsonData = await tryLoadJsonForDiagnostic(diagnostic.diagId);
+        
+        // If JSON doesn't exist, try to load code file
+        let codeData = null;
+        if (!jsonData) {
+            codeData = await tryLoadCodeFileForDiagnostic(diagnostic.diagId);
+        }
+        
+        // Create appropriate card
+        const card = jsonData ? 
+            createEnhancedErrorCard(jsonData, diagnostic) : 
+            (codeData ? 
+                createCodeOnlyErrorCard(diagnostic, codeData) : 
+                createDiagnosticCard(diagnostic));
+        
+        return card;
+    });
+    
+    // Wait for all promises to resolve
+    const cards = await Promise.all(promises);
+    
+    // Add cards to fragment
+    cards.forEach(card => fragment.appendChild(card));
+    
+    // Clear container and add cards
+    errorListContainer.appendChild(fragment);
+    
+    // Apply syntax highlighting
+    document.querySelectorAll('pre code').forEach(block => {
+        hljs.highlightElement(block);
+    });
+    
+    // Add pagination controls if needed
+    if (pagination && pagination.totalPages > 1) {
+        addPaginationControls(errorListContainer, pagination);
+    }
+    
+    // Update search results info
+    updateSearchResultsInfo(query, pagination ? pagination.totalResults : results.length, pagination);
+    
+    // Scroll to error list section
+    document.getElementById('error-list').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Add pagination controls to container
+function addPaginationControls(container, pagination) {
+    // Remove any existing pagination controls
+    const existingControls = container.querySelector('.pagination-controls');
+    if (existingControls) {
+        existingControls.remove();
+    }
+
+    // Create new pagination container
+    const paginationDiv = document.createElement('div');
+    paginationDiv.className = 'pagination-controls';
+    
+    // Create previous button with SVG icon
+    const prevButton = document.createElement('button');
+    prevButton.className = 'pagination-btn prev-btn';
+    prevButton.disabled = pagination.currentPage <= 1;
+    prevButton.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 18l-6-6 6-6"/>
+        </svg>
+        <span>Previous</span>
+    `;
+    prevButton.addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            displayPageResults(document.getElementById('searchInput').value.trim());
         }
     });
     
-    // Display search results info
-    updateSearchResultsInfo(query, foundCount);
+    // Create next button with SVG icon
+    const nextButton = document.createElement('button');
+    nextButton.className = 'pagination-btn next-btn';
+    nextButton.disabled = pagination.currentPage >= pagination.totalPages;
+    nextButton.innerHTML = `
+        <span>Next</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18l6-6-6-6"/>
+        </svg>
+    `;
+    nextButton.addEventListener('click', () => {
+        if (currentPage < pagination.totalPages) {
+            currentPage++;
+            displayPageResults(document.getElementById('searchInput').value.trim());
+        }
+    });
     
-    // If no results found in existing cards, try to search in TD files
-    if (foundCount === 0) {
-        searchInTDFiles(query);
-    } else {
-        // Scroll to error list section
-        document.getElementById('error-list').scrollIntoView({ behavior: 'smooth' });
-    }
+    // Page info
+    const pageInfo = document.createElement('div');
+    pageInfo.className = 'page-info';
+    pageInfo.innerHTML = `${pagination.currentPage} of ${pagination.totalPages}`;
+    
+    // Add elements to pagination div
+    paginationDiv.appendChild(prevButton);
+    paginationDiv.appendChild(pageInfo);
+    paginationDiv.appendChild(nextButton);
+    
+    // Add to container
+    container.appendChild(paginationDiv);
 }
 
 // Update search results info
-function updateSearchResultsInfo(query, foundCount) {
+function updateSearchResultsInfo(query, foundCount, pagination) {
     const resultsInfo = document.getElementById('search-results-info') || document.createElement('div');
     resultsInfo.id = 'search-results-info';
     resultsInfo.className = 'search-results-info';
     
     if (query !== '') {
-        resultsInfo.textContent = `Found ${foundCount} result${foundCount !== 1 ? 's' : ''} for "${query}"`;
+        let infoText = `Found ${foundCount} result${foundCount !== 1 ? 's' : ''} for "${query}"`;
+        if (pagination && pagination.totalPages > 1) {
+            infoText += ` (showing ${(pagination.currentPage - 1) * resultsPerPage + 1}-${Math.min(pagination.currentPage * resultsPerPage, foundCount)} of ${foundCount})`;
+        }
+        resultsInfo.textContent = infoText;
     } else {
         resultsInfo.textContent = '';
     }
@@ -596,29 +742,6 @@ function updateSearchResultsInfo(query, foundCount) {
     if (!document.getElementById('search-results-info')) {
         errorListSection.insertBefore(resultsInfo, document.getElementById('error-list-container'));
     }
-    
-    // Scroll to error list section
-    errorListSection.scrollIntoView({ behavior: 'smooth' });
-}
-
-// Search in TD files
-function searchInTDFiles(query) {
-    console.log('Searching in TD files');
-    
-    // Make sure the parser is initialized
-    window.diagnosticParser.initialize().then(() => {
-        const results = window.diagnosticParser.searchDiagnostic(query);
-        
-        if (results.length > 0) {
-            displayTDMatches(results, query);
-        } else {
-            // Update search results info to show no results
-            updateSearchResultsInfo(query, 0);
-            
-            // Scroll to error list section
-            document.getElementById('error-list').scrollIntoView({ behavior: 'smooth' });
-        }
-    });
 }
 
 // Try to load code file for a diagnostic from success_files folder
@@ -643,50 +766,6 @@ async function tryLoadCodeFileForDiagnostic(diagId) {
     }
     
     return null; // No code file found
-}
-
-// Display TD matches
-async function displayTDMatches(results, query) {
-    console.log('Displaying TD matches:', results);
-    
-    const errorListContainer = document.getElementById('error-list-container');
-    errorListContainer.innerHTML = ''; // Clear existing content
-    
-    const fragment = document.createDocumentFragment();
-    
-    // Process each result
-    for (const diagnostic of results) {
-        // Try to load corresponding JSON file
-        const jsonData = await tryLoadJsonForDiagnostic(diagnostic.diagId);
-        
-        // If JSON doesn't exist, try to load code file
-        let codeData = null;
-        if (!jsonData) {
-            codeData = await tryLoadCodeFileForDiagnostic(diagnostic.diagId);
-        }
-        
-        // Create appropriate card
-        const card = jsonData ? 
-            createEnhancedErrorCard(jsonData, diagnostic) : 
-            (codeData ? 
-                createCodeOnlyErrorCard(diagnostic, codeData) : 
-                createDiagnosticCard(diagnostic));
-        
-        fragment.appendChild(card);
-    }
-    
-    errorListContainer.appendChild(fragment);
-    
-    // Apply syntax highlighting
-    document.querySelectorAll('pre code').forEach(block => {
-        hljs.highlightElement(block);
-    });
-    
-    // Update search results info
-    updateSearchResultsInfo(query, results.length);
-    
-    // Scroll to error list section
-    document.getElementById('error-list').scrollIntoView({ behavior: 'smooth' });
 }
 
 // Try to load JSON for a diagnostic
