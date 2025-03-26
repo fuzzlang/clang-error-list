@@ -240,52 +240,71 @@ class DiagnosticParser {
         
         const results = [];
         const queryLower = query.toLowerCase().trim();
-        
-        // Split query into words
         const queryWords = queryLower.split(/\s+/).filter(w => w.length > 0);
+        
         console.log(`Searching for: "${queryLower}" (${queryWords.length} words)`);
         
-        // Search in all diagnostics
+        // First stage: search for exact matches without considering placeholders
+        const exactMatches = this.findExactMatches(queryLower, queryWords);
+        
+        // If we found exact matches, return them
+        if (exactMatches.length > 0) {
+            console.log(`Found ${exactMatches.length} exact matches`);
+            return exactMatches.slice(0, 10);
+        }
+        
+        // Second stage: consider placeholder-based matches
+        console.log('No exact matches found, considering placeholder matches');
+        const placeholderMatches = this.findPlaceholderMatches(queryLower, queryWords);
+        
+        console.log(`Found ${placeholderMatches.length} placeholder-based matches`);
+        return placeholderMatches.slice(0, 10);
+    }
+
+    // Find exact matches without considering placeholders
+    findExactMatches(query, queryWords) {
+        const results = [];
+        
         this.diagnostics.forEach((diagInfo, diagId) => {
-            // Prepare strings for comparison
             const template = diagInfo.template.toLowerCase();
             const id = diagId.toLowerCase();
             
-            // Exact matching logic
-            let matched = false;
-            let matchScore = 0;
+            // Remove placeholders for initial comparison
+            const templateWithoutPlaceholders = template.replace(/%\d+/g, '').trim();
+            const templateWords = templateWithoutPlaceholders.split(/\s+/).filter(w => w.length > 0);
             
-            // 1. Check if ID exactly matches query
-            if (id === queryLower) {
+            let matchScore = 0;
+            let matched = false;
+            
+            // Exact ID match
+            if (id === query) {
                 matchScore = 1.0;
                 matched = true;
             }
-            
-            // 2. Check if ID contains query
-            else if (id.includes(queryLower)) {
+            // ID contains query
+            else if (id.includes(query)) {
                 matchScore = 0.9;
                 matched = true;
             }
-            
-            // 3. Check if template contains full query
-            else if (template.includes(queryLower)) {
+            // Template contains full query (exact template match)
+            else if (templateWithoutPlaceholders === query || template === query) {
+                matchScore = 0.95;
+                matched = true;
+            }
+            // Template contains query
+            else if (templateWithoutPlaceholders.includes(query)) {
                 matchScore = 0.8;
                 matched = true;
             }
-            
-            // 4. Check if all query words appear in template or ID
-            else if (queryWords.length > 0) {
-                const wordsMatched = queryWords.every(word => 
-                    template.includes(word) || id.includes(word)
-                );
-                
-                if (wordsMatched) {
-                    matchScore = 0.7;
-                    matched = true;
-                }
+            // Word-by-word match (all query words found in template)
+            else if (queryWords.every(word => templateWithoutPlaceholders.includes(word))) {
+                // Calculate what percentage of the template text is covered by the query
+                const coverage = queryWords.reduce((sum, word) => sum + word.length, 0) / 
+                                 templateWithoutPlaceholders.length;
+                matchScore = 0.7 + (coverage * 0.2); // 0.7 to 0.9 based on coverage
+                matched = true;
             }
             
-            // If there's a match, add to results
             if (matched) {
                 results.push({
                     diagId,
@@ -293,15 +312,82 @@ class DiagnosticParser {
                     type: diagInfo.type,
                     fileName: diagInfo.fileName,
                     similarity: matchScore,
-                    matchType: "direct"
+                    matchType: "exact"
                 });
             }
         });
         
-        // Sort and return results
-        console.log(`Found ${results.length} matches`);
+        // Sort by score
         results.sort((a, b) => b.similarity - a.similarity);
-        return results.slice(0, 10);
+        return results;
+    }
+
+    // Find matches considering placeholders
+    findPlaceholderMatches(query, queryWords) {
+        const results = [];
+        
+        this.diagnostics.forEach((diagInfo, diagId) => {
+            const template = diagInfo.template.toLowerCase();
+            
+            // Skip if doesn't contain placeholders
+            if (!template.includes('%')) {
+                return;
+            }
+            
+            // Split template into parts by placeholders
+            const parts = template.split(/(%\d+)/g).filter(p => p.length > 0);
+            
+            // Find the fixed parts (non-placeholder parts)
+            const fixedParts = parts.filter(p => !p.match(/%\d+/));
+            
+            // Check if query contains all fixed parts of the template
+            const allFixedPartsMatch = fixedParts.every(part => 
+                query.includes(part.trim())
+            );
+            
+            if (allFixedPartsMatch) {
+                // Calculate how much of the query is covered by fixed parts
+                const coverageScore = fixedParts.reduce((sum, part) => 
+                    sum + part.trim().length, 0) / query.length;
+                
+                // Create a mock value by replacing placeholders with sample values
+                const mockValue = this.createMockValueFromTemplate(template);
+                
+                // Calculate similarity between mock value and query
+                const similarityScore = this.calculateSimilarity(mockValue, query);
+                
+                // Combined score - emphasize fixed part coverage
+                const matchScore = (coverageScore * 0.7) + (similarityScore * 0.3);
+                
+                if (matchScore >= 0.4) { // Set a threshold to avoid weak matches
+                    results.push({
+                        diagId,
+                        template: diagInfo.template,
+                        type: diagInfo.type,
+                        fileName: diagInfo.fileName,
+                        similarity: matchScore,
+                        matchType: "placeholder"
+                    });
+                }
+            }
+        });
+        
+        // Sort by score
+        results.sort((a, b) => b.similarity - a.similarity);
+        return results;
+    }
+
+    // Create a mock value by replacing placeholders with sample values
+    createMockValueFromTemplate(template) {
+        return template
+            .replace(/%0/g, 'value0')
+            .replace(/%1/g, 'value1')
+            .replace(/%2/g, 'value2')
+            .replace(/%\d+/g, 'value')
+            .replace(/%select\{([^}]+)\}\d+/g, (_, options) => options.split('|')[0])
+            .replace(/%plural\{([^}]+)\}\d+/g, '$1')
+            .replace(/%s\d+/g, 'string')
+            .replace(/%[a-z]+\d+/g, 'value');
     }
 
     calculateSimilarity(s1, s2) {
@@ -320,6 +406,142 @@ class DiagnosticParser {
         const wordSimilarity = (2.0 * commonWords.length) / (words1.length + words2.length);
         
         return wordSimilarity;
+    }
+
+    // Improved helper method to detect if query is a direct substitution of template
+    placeholderTemplateMatchesQuery(template, query) {
+        // Split template into fixed parts and placeholders
+        const parts = [];
+        let lastIndex = 0;
+        const placeholderRegex = /%\d+/g;
+        let match;
+        
+        while ((match = placeholderRegex.exec(template)) !== null) {
+            // Add text before placeholder
+            if (match.index > lastIndex) {
+                parts.push({
+                    type: 'text',
+                    content: template.substring(lastIndex, match.index)
+                });
+            }
+            
+            // Add placeholder
+            parts.push({
+                type: 'placeholder',
+                content: match[0]
+            });
+            
+            lastIndex = match.index + match[0].length;
+        }
+        
+        // Add remaining text after last placeholder
+        if (lastIndex < template.length) {
+            parts.push({
+                type: 'text',
+                content: template.substring(lastIndex)
+            });
+        }
+        
+        // Now try to match the query against these parts
+        let currentPosition = 0;
+        
+        for (const part of parts) {
+            if (part.type === 'text') {
+                // Fixed text must match exactly
+                if (!query.substring(currentPosition).startsWith(part.content)) {
+                    return false;
+                }
+                currentPosition += part.content.length;
+            } else {
+                // For placeholder, find the next fixed text part
+                const nextTextPart = parts.find((p, i) => 
+                    parts.indexOf(part) < i && p.type === 'text'
+                );
+                
+                if (!nextTextPart) {
+                    // This is the last placeholder, it consumes the rest of the query
+                    return currentPosition < query.length;
+                }
+                
+                // Find the next fixed text in the query
+                const nextTextIndex = query.indexOf(nextTextPart.content, currentPosition);
+                if (nextTextIndex === -1) {
+                    return false; // Next fixed text not found
+                }
+                
+                // Make sure placeholder matched something reasonable
+                const placeholderValue = query.substring(currentPosition, nextTextIndex);
+                if (!this.isReasonablePlaceholderValue(placeholderValue)) {
+                    return false;
+                }
+                
+                currentPosition = nextTextIndex;
+            }
+        }
+        
+        // We should have consumed the entire query
+        return currentPosition === query.length;
+    }
+
+    // Helper to determine if a string is a reasonable placeholder value
+    isReasonablePlaceholderValue(value) {
+        // Placeholder values typically are single tokens without spaces
+        // This helps avoid matching arbitrary long strings to placeholders
+        if (!value.trim()) return false;
+        
+        // Too long values are suspicious
+        if (value.length > 30) return false;
+        
+        // Check if the value has reasonable token structure
+        // Common placeholder types: type names, variable names, keywords
+        return /^[\w<>[\]:&*.,]+$/i.test(value.trim());
+    }
+
+    // New helper to check if query is an exact match for a template with placeholders
+    isExactPlaceholderMatch(template, query) {
+        // First check for the structure (template with placeholders)
+        if (!template.match(/%\d+/)) return false;
+        
+        // Remove placeholder tokens from template
+        const templatePattern = template.replace(/%\d+/g, '(.+?)');
+        
+        // Create regex ensuring exact structure match
+        try {
+            const regex = new RegExp(`^${templatePattern.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}$`, 'i');
+            
+            // Test if query matches the pattern exactly
+            if (regex.test(query)) {
+                // Extract the template parts (non-placeholder text)
+                const templateParts = template.split(/%\d+/).filter(p => p.length > 0);
+                
+                // Check that all template parts are in the query
+                const allPartsMatch = templateParts.every(part => 
+                    query.toLowerCase().includes(part.toLowerCase())
+                );
+                
+                if (allPartsMatch) {
+                    // Final check - replace placeholders with what looks like real values
+                    // and check if query structure matches
+                    const parts = template.split(/(%\d+)/);
+                    let testString = '';
+                    
+                    for (const part of parts) {
+                        if (part.match(/%\d+/)) {
+                            testString += 'TYPE'; // Substitute placeholder with a typical value
+                        } else {
+                            testString += part;
+                        }
+                    }
+                    
+                    // Check if the structure is similar (same word count, etc.)
+                    return Math.abs(testString.split(/\s+/).length - query.split(/\s+/).length) <= 1;
+                }
+            }
+        } catch (e) {
+            console.log('Error in exact placeholder match check:', e);
+        }
+        
+        return false;
     }
 }
 
