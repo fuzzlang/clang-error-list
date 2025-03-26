@@ -3,5 +3,5 @@
   "description": "This error occurs when a template is redeclared with a different number of template parameters than in the original declaration.",
   "exampleCode": "template<typename T> T v; // expected-error {{too few template parameters in template redeclaration}}\ntemplate<typename T, typename U> T v; // Correct redeclaration with different arity",
   "explanation": "The error occurs because the template is redeclared with a different number of template parameters. The first declaration has one template parameter (T), but the second declaration has two (T and U). When redeclaring a template, the number of template parameters must be the same.",
-  "fixedCode": "// Keep the same number of template parameters in all declarations\ntemplate<typename T, typename U> T v;\ntemplate<typename T, typename U> T v; // Same number of parameters"
+  "fixedCode": "// Declare two different variables with different template parameters\ntemplate<typename T> T v;\ntemplate<typename T, typename U> T v1; // Different variable name for different template"
 } 

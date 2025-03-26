@@ -3,5 +3,5 @@
   "description": "This error occurs when a template is declared outside of namespace or class scope. Templates can only be declared in namespace or class scope.",
   "exampleCode": "namespace PR46859 {\n  extern \"bogus\" // expected-error {{unknown linkage language}}\n    template<int> struct X {}; // expected-error {{templates can only be declared in namespace or class scope}}\n}",
   "explanation": "The error occurs because the template is declared in an invalid scope. Templates can only be declared in namespace or class scope, not inside linkage specifications or other non-namespace, non-class scopes.",
-  "fixedCode": "namespace PR46859 {\n  // Declare the template directly in namespace scope\n  template<int> struct X {};\n  \n  // Or use a valid linkage specification\n  extern \"C++\" {\n    template<int> struct Y {};\n  }\n}"
+  "fixedCode": "namespace PR46859 {\n    // Fix 1: Use a valid linkage specifier or remove it\n    extern \"C\" void bogus(); // Changed to \"C\" linkage instead of \"bogus\"\n    \n    // Fix 2: Template is already inside a namespace, so it's valid\n    template<int> struct X {}; // This is actually fine in a namespace\n}"
 } 

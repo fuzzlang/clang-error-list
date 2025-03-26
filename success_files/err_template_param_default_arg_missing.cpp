@@ -1,4 +1,3 @@
-
 // expected-error@-1 {{cannot add a default template argument to the definition of a member of a class template}}
 
 template<typename> void friend_h();

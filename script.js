@@ -342,6 +342,9 @@ function updateSearchResultsInfo(query, foundCount) {
     if (!document.getElementById('search-results-info')) {
         errorListSection.insertBefore(resultsInfo, document.getElementById('error-list-container'));
     }
+    
+    // Scroll to error list section
+    errorListSection.scrollIntoView({ behavior: 'smooth' });
 }
 
 // Search in TD files
@@ -451,7 +454,7 @@ function createDiagnosticCard(diagnostic) {
     card.className = 'error-card';
     card.id = diagnostic.diagId;
     
-    // Simplified formatting
+    // Display the error message template
     let formattedMessage = diagnostic.template || '';
     
     card.innerHTML = `
@@ -460,7 +463,6 @@ function createDiagnosticCard(diagnostic) {
             <p><strong>Message Template:</strong> ${formattedMessage}</p>
             <p><strong>Type:</strong> ${diagnostic.type}</p>
             <p><strong>Source:</strong> ${diagnostic.fileName.split('/').pop()}</p>
-            <p><strong>Match Type:</strong> ${diagnostic.matchType} (Similarity: ${diagnostic.similarity.toFixed(2)})</p>
         </div>
         <div class="error-explanation">
             <h4>Explanation:</h4>
@@ -475,7 +477,12 @@ function createDiagnosticCard(diagnostic) {
 function loadErrorData() {
     console.log('Attempting to load error data...');
     
-    fetch('errors/index.json')
+    // First initialize the diagnostic parser and wait for it to complete
+    window.diagnosticParser.initialize()
+        .then(() => {
+            console.log('Diagnostic parser initialized, loading error data...');
+            return fetch('errors/index.json');
+        })
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Network response was not ok: ${response.status}`);
@@ -511,7 +518,9 @@ function loadErrorData() {
                                 return response.json();
                             })
                             .then(errorData => {
-                                const errorCard = createErrorCard(errorData);
+                                // Get diagnostic info for this error
+                                const diagnosticInfo = window.diagnosticParser.getDiagnosticInfo(errorData.id);
+                                const errorCard = createErrorCard(errorData, diagnosticInfo);
                                 fragment.appendChild(errorCard);
                             })
                             .catch(error => {
@@ -534,11 +543,6 @@ function loadErrorData() {
                     } else {
                         // After all batches are loaded, check hash links
                         checkHashLinks();
-                        
-                        // Delayed initialization of diagnostic parser
-                        setTimeout(() => {
-                            window.diagnosticParser.initialize();
-                        }, 1000);
                     }
                 });
             };
@@ -553,6 +557,54 @@ function loadErrorData() {
         });
 }
 
+// Create standard error card function
+function createErrorCard(errorData, diagnosticInfo) {
+    const card = document.createElement('div');
+    card.className = 'error-card';
+    card.id = errorData.id;
+    
+    // Helper function to escape HTML special characters
+    function escapeHtml(text) {
+        return text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+    
+    // Check if fixed code exists and is not empty
+    const hasFixedCode = errorData.fixedCode && errorData.fixedCode.trim().length > 0;
+    
+    card.innerHTML = `
+        <h3>${errorData.id}</h3>
+        <div class="error-description">
+            <p>${errorData.description}</p>
+            ${diagnosticInfo ? `
+            <p><strong>Message Template:</strong> ${escapeHtml(diagnosticInfo.template)}</p>
+            <p><strong>Type:</strong> ${diagnosticInfo.type}</p>
+            <p><strong>Source:</strong> ${diagnosticInfo.fileName.split('/').pop()}</p>
+            ` : ''}
+        </div>
+        <div class="code-example">
+            <h4>Example Code:</h4>
+            <pre><code class="language-cpp">${escapeHtml(errorData.exampleCode)}</code></pre>
+        </div>
+        <div class="error-explanation">
+            <h4>Explanation:</h4>
+            <p>${errorData.explanation}</p>
+        </div>
+        ${hasFixedCode ? `
+        <div class="fix-example">
+            <h4>Fixed Code:</h4>
+            <pre><code class="language-cpp">${escapeHtml(errorData.fixedCode)}</code></pre>
+        </div>
+        ` : ''}
+    `;
+    
+    return card;
+}
+
 // Check hash links
 function checkHashLinks() {
     if (window.location.hash) {
@@ -565,32 +617,4 @@ function checkHashLinks() {
             }, 500);
         }
     }
-}
-
-// Create standard error card function
-function createErrorCard(errorData) {
-    const card = document.createElement('div');
-    card.className = 'error-card';
-    card.id = errorData.id;
-    
-    card.innerHTML = `
-        <h3>${errorData.id}</h3>
-        <div class="error-description">
-            <p>${errorData.description}</p>
-        </div>
-        <div class="code-example">
-            <h4>Example Code:</h4>
-            <pre><code class="language-cpp">${errorData.exampleCode}</code></pre>
-        </div>
-        <div class="error-explanation">
-            <h4>Explanation:</h4>
-            <p>${errorData.explanation}</p>
-        </div>
-        <div class="fix-example">
-            <h4>Fixed Code:</h4>
-            <pre><code class="language-cpp">${errorData.fixedCode}</code></pre>
-        </div>
-    `;
-    
-    return card;
 } 

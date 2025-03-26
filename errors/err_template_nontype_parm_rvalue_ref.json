@@ -1,7 +1,7 @@
 {
   "id": "err_template_nontype_parm_rvalue_ref",
   "description": "This error occurs when a non-type template parameter has an rvalue reference type. Non-type template parameters cannot have rvalue reference types.",
-  "exampleCode": "template<int &&R> struct rval_ref; // expected-warning 0-1{{extension}} expected-error {{non-type template parameter has rvalue reference type 'int &&'}}",
+  "exampleCode": "template<int &&R> struct rval_ref;",
   "explanation": "The error occurs because non-type template parameters cannot have rvalue reference types like 'int &&'. Non-type template parameters can have lvalue reference types, but not rvalue reference types.",
   "fixedCode": "// Use an lvalue reference instead\ntemplate<int &R> struct lval_ref;\n\n// Or use a value parameter\ntemplate<int R> struct val_ref;"
 } 
