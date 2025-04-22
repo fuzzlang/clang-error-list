@@ -739,8 +739,10 @@ function updateSearchResultsInfo(query, foundCount, pagination) {
     }
     
     const errorListSection = document.getElementById('error-list');
-    if (!document.getElementById('search-results-info')) {
-        errorListSection.insertBefore(resultsInfo, document.getElementById('error-list-container'));
+    const errorListContainer = document.getElementById('error-list-container');
+    
+    if (errorListSection && errorListContainer && !document.getElementById('search-results-info')) {
+        errorListSection.insertBefore(resultsInfo, errorListContainer);
     }
 }
 
@@ -789,7 +791,7 @@ function createEnhancedErrorCard(errorData, diagnostic) {
     card.id = errorData.id;
     
     card.innerHTML = `
-        <h3>${errorData.id}</h3>
+        <h3 style="color: #4a6bdf;">${errorData.id}</h3>
         <div class="error-description">
             <p>${errorData.description}</p>
             <p><strong>Message Template:</strong> ${diagnostic.template}</p>
@@ -823,7 +825,7 @@ function createDiagnosticCard(diagnostic) {
     let formattedMessage = diagnostic.template || '';
     
     card.innerHTML = `
-        <h3>${diagnostic.diagId}</h3>
+        <h3 style="color: #4a6bdf;">${diagnostic.diagId}</h3>
         <div class="error-description">
             <p><strong>Message Template:</strong> ${formattedMessage}</p>
             <p><strong>Type:</strong> ${diagnostic.type}</p>
@@ -855,7 +857,7 @@ function createCodeOnlyErrorCard(diagnostic, codeData) {
     }
     
     card.innerHTML = `
-        <h3>${diagnostic.diagId}</h3>
+        <h3 style="color: #4a6bdf;">${diagnostic.diagId}</h3>
         <div class="error-description">
             <p><strong>Message Template:</strong> ${escapeHtml(diagnostic.template)}</p>
             <p><strong>Type:</strong> ${diagnostic.type}</p>
@@ -978,7 +980,7 @@ function createErrorCard(errorData, diagnosticInfo) {
     const hasFixedCode = errorData.fixedCode && errorData.fixedCode.trim().length > 0;
     
     card.innerHTML = `
-        <h3>${errorData.id}</h3>
+        <h3 style="color: #4a6bdf;">${errorData.id}</h3>
         <div class="error-description">
             <p>${errorData.description}</p>
             ${diagnosticInfo ? `
@@ -988,16 +990,16 @@ function createErrorCard(errorData, diagnosticInfo) {
             ` : ''}
         </div>
         <div class="code-example">
-            <h4>Example Code:</h4>
+            <h4 style="color: #333;">Example Code:</h4>
             <pre><code class="language-cpp">${escapeHtml(errorData.exampleCode)}</code></pre>
         </div>
         <div class="error-explanation">
-            <h4>Explanation:</h4>
+            <h4 style="color: #333;">Explanation:</h4>
             <p>${errorData.explanation}</p>
         </div>
         ${hasFixedCode ? `
         <div class="fix-example">
-            <h4>Fixed Code:</h4>
+            <h4 style="color: #333;">Fixed Code:</h4>
             <pre><code class="language-cpp">${escapeHtml(errorData.fixedCode)}</code></pre>
         </div>
         ` : ''}

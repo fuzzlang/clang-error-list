@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction - Clang Error Documentation</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <style>
+        .intro-section {
+            margin-bottom: 2.5rem;
+        }
+        
+        .intro-section h3 {
+            color: #2b3035;
+            margin: 1.5rem 0 0.8rem;
+            border-bottom: 1px solid #e6e6e6;
+            padding-bottom: 0.5rem;
+        }
+        
+        .highlight-box {
+            background-color: #f0f7ff;
+            border-left: 4px solid #4a6bdf;
+            padding: 1.2rem;
+            margin: 1.5rem 0;
+            border-radius: 0 6px 6px 0;
+        }
+        
+        .feature-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-card h4 {
+            color: #4a6bdf;
+            margin-top: 0;
+            margin-bottom: 0.8rem;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        @media (max-width: 768px) {
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .home-link {
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .home-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* 返回顶部按钮样式 */
+        .back-to-top-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #4a6bdf;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+        
+        .back-to-top-btn:hover {
+            background-color: #3a5bcf;
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+        }
+        
+        .back-to-top-btn.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        @media (max-width: 768px) {
+            .back-to-top-btn {
+                bottom: 20px;
+                right: 20px;
+                width: 45px;
+                height: 45px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Clang Error Documentation</h1>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search for error codes...">
+                <button id="searchButton">Search</button>
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="introduction.html">Introduction</a></li>
+                <li><a href="error-list.html">Error List</a></li>
+                <li><a href="contributing.html">Contributing</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section id="introduction">
+            <h2>Introduction</h2>
+            
+            <div class="intro-section">
+                <p>
+                    Welcome to the Clang Error Documentation. This resource provides detailed information about Clang compiler errors,
+                    including error codes, explanations, and code examples demonstrating the errors and how to fix them.
+                </p>
+                <p>
+                    Clang is a C, C++, Objective-C, and Objective-C++ compiler which is designed to be compatible with GCC.
+                    Understanding compiler errors is essential for effective debugging and code improvement.
+                </p>
+            </div>
+            
+            <div class="intro-section">
+                <h3>About Fuzzlang Project</h3>
+                <p>
+                    Compilers have always played a critical role in software development and as languages grew more complex and diverse, 
+                    so did Compilers and their interaction with the user. Yet, systematic research on the generation, classification, 
+                    and reproduction of compilation errors remains limited. At the same time, compiler developers continuously add, 
+                    remove, and modify compilation errors on a best-effort basis to keep up with user demand and the evolution of 
+                    programming languages.
+                </p>
+                
+                <div class="highlight-box">
+                    <p>
+                        To offset this gap, <strong>Fuzzlang</strong> is an innovative framework that creates extensive datasets of 
+                        compiler errors in isolation and as part of real-world code. Fuzzlang consists of the Fuzzlang Transformer, 
+                        which generates diverse compilation errors given existing code, and Fuzzlang Agent, which leverages large 
+                        language models (LLMs) to analyze and isolate complex errors from internal compiler tests.
+                    </p>
+                </div>
+                
+                <p>
+                    Together, Fuzzlang was able to generate 5x as many independent error types as the DeepFix error database 
+                    and thereby reach a coverage of 83.1% of all the error conditions LLVM/Clang's internal testing triggered.
+                </p>
+                
+                <p>
+                    Our evaluation shows that fine-tuning LLMs with the Fuzzlang dataset significantly improves their code repair performance.
+                    The precision of Llama3-8B increased from 37.22% to 93.97% and for GPT-4o-mini it grew from 72.29% to 96.70%.
+                    The coverage and performance results indicate that Fuzzlang provides effective tools to generate comprehensive datasets
+                    for advancing intelligent code repair and compiler diagnostics research.
+                </p>
+            </div>
+            
+            <div class="intro-section">
+                <h3>About This Documentation Website</h3>
+                <p>
+                    This website is built based on the code reproduced by the Fuzzlang Agent component of the Fuzzlang project. It serves as
+                    a practical application of the research, providing developers with a comprehensive resource for understanding and fixing
+                    Clang compiler errors.
+                </p>
+                
+                <p>
+                    The documentation focuses on Template errors as a proof of concept, demonstrating how structured error information
+                    can be presented in a user-friendly manner. Each error entry includes:
+                </p>
+                
+                <ul>
+                    <li>The original error message and code</li>
+                    <li>Detailed explanation of why the error occurs</li>
+                    <li>Example code that reproduces the error</li>
+                    <li>Corrected code that fixes the issue</li>
+                </ul>
+            </div>
+            
+            <div class="intro-section">
+                <h3>Key Features</h3>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Comprehensive Error Database</h4>
+                        <p>Detailed documentation of Clang template-related error messages, organized for easy reference.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>Search Functionality</h4>
+                        <p>Powerful semantic search to find specific error messages or keywords across the entire error database.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>Interactive Examples</h4>
+                        <p>Highlighted code examples showing both problematic code and the corrected version for each error.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>Detailed Explanations</h4>
+                        <p>Clear, concise explanations of why each error occurs and the underlying C++ language rules.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="intro-section">
+                <h3>How to Use This Documentation</h3>
+                <p>
+                    You can navigate this documentation in several ways:
+                </p>
+                <ul>
+                    <li><strong>Browse the Error List</strong>: Visit the <a href="error-list.html">Error List</a> page to see all documented errors.</li>
+                    <li><strong>Search for Specific Errors</strong>: Use the search box at the top of any page to find errors by code or description.</li>
+                    <li><strong>Contribute</strong>: If you'd like to help improve this documentation, please check the <a href="contributing.html">Contributing</a> page.</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Fuzzlang Team. All rights reserved.</p>
+            <p>This is an unofficial resource and is not affiliated with the LLVM Project or Clang.</p>
+        </div>
+    </footer>
+
+    <!-- 添加返回顶部按钮 -->
+    <div id="back-to-top" class="back-to-top-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+    </div>
+    
+    <script src="script.js"></script>
+    <script src="common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化返回顶部按钮
+            initBackToTopButton();
+        });
+        
+        // 初始化返回顶部按钮
+        function initBackToTopButton() {
+            const backToTopBtn = document.getElementById('back-to-top');
+            const header = document.querySelector('header');
+            
+            // 检测页面滚动，决定按钮显示或隐藏
+            window.addEventListener('scroll', function() {
+                const headerBottom = header.getBoundingClientRect().bottom;
+                
+                if (headerBottom < 0) {
+                    backToTopBtn.classList.add('visible');
+                } else {
+                    backToTopBtn.classList.remove('visible');
+                }
+            });
+            
+            // 点击按钮返回顶部
+            backToTopBtn.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        }
+    </script>
+</body>
+</html> 

@@ -23,65 +23,248 @@
     <nav>
         <div class="container">
             <ul>
-                <li><a href="#overview">Overview</a></li>
-                <li><a href="#error-list">Error List</a></li>
-                <li><a href="#contributing">Contributing</a></li>
+                <li><a href="introduction.html">Introduction</a></li>
+                <li><a href="error-list.html">Error List</a></li>
+                <li><a href="contributing.html">Contributing</a></li>
             </ul>
         </div>
     </nav>
 
     <main class="container">
-        <section id="overview">
-            <h2>Overview</h2>
+        <div class="welcome-section">
+            <h2>Welcome to Clang Error Documentation</h2>
             <p>
-                Welcome to the Clang Error Documentation. This resource provides detailed information about Clang compiler errors,
-                including error codes, explanations, and code examples demonstrating the errors and how to fix them.
+                This resource aims to help developers understand and fix common Clang compiler errors.
+                Please use the navigation above to explore different sections of our documentation.
             </p>
-            <p>
-                Clang is a C, C++, Objective-C, and Objective-C++ compiler which is designed to be compatible with GCC.
-                Understanding compiler errors is essential for effective debugging and code improvement.
-            </p>
-        </section>
+            <div class="quick-links">
+                <a href="introduction.html" class="quick-link-button">Learn about the project</a>
+                <a href="error-list.html" class="quick-link-button">Browse error codes</a>
+                <a href="contributing.html" class="quick-link-button">Contribute to the documentation</a>
+            </div>
+        </div>
 
-        <section id="error-list">
-            <h2>Error List</h2>
-            <p>Below is a comprehensive list of Clang error codes with explanations and examples:</p>
-
-
-            <div id="error-list-container"></div>
-        </section>
-
-        <section id="contributing">
-            <h2>Contributing</h2>
-            <p>
-                This documentation is a community effort. If you'd like to contribute by adding new error codes, 
-                improving explanations, or fixing issues, please follow these steps:
-            </p>
-            <ol>
-                <li>Fork the repository</li>
-                <li>Add your error code following the template format</li>
-                <li>Submit a pull request with a clear description of your changes</li>
-            </ol>
-            <p>
-                When adding a new error, please include:
-            </p>
-            <ul>
-                <li>The error code identifier</li>
-                <li>A clear description of when the error occurs</li>
-                <li>Example code that triggers the error</li>
-                <li>An explanation of why the error occurs</li>
-                <li>Example code showing how to fix the error</li>
-            </ul>
-        </section>
+        <div class="featured-errors">
+            <h3>Featured Template Error Examples</h3>
+            <div id="featured-errors-container"></div>
+        </div>
     </main>
 
     <footer>
         <div class="container">
-            <p>&copy; 2023 Clang Error Documentation. All rights reserved.</p>
+            <p>&copy; 2025 Fuzzlang Team. All rights reserved.</p>
             <p>This is an unofficial resource and is not affiliated with the LLVM Project or Clang.</p>
         </div>
     </footer>
 
+    <!-- 添加返回顶部按钮 -->
+    <div id="back-to-top" class="back-to-top-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+    </div>
+
+    <style>
+        .home-link {
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .home-link:hover {
+            text-decoration: underline;
+        }
+        
+        .featured-errors {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        .featured-errors h3 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .error-card h3 {
+            color: #4a6bdf !important;
+            font-family: monospace;
+            font-size: 1.3rem;
+            margin-top: 0;
+        }
+        
+        .quick-links {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .quick-link-button {
+            background-color: #0366d6;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin: 10px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .quick-link-button:hover {
+            background-color: #0256b9;
+        }
+        
+        .error-card h4 {
+            color: #333 !important;
+        }
+        
+        .code-example h4, .fix-example h4, .error-explanation h4 {
+            color: #333 !important;
+            font-weight: 600;
+        }
+        
+        .error-card .error-description p {
+            margin-bottom: 10px;
+        }
+        
+        /* 返回顶部按钮样式 */
+        .back-to-top-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #4a6bdf;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+        
+        .back-to-top-btn:hover {
+            background-color: #3a5bcf;
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+        }
+        
+        .back-to-top-btn.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        @media (max-width: 768px) {
+            .back-to-top-btn {
+                bottom: 20px;
+                right: 20px;
+                width: 45px;
+                height: 45px;
+            }
+        }
+    </style>
+
+    <!-- Load script.js first, then common.js which will initialize components -->
     <script src="script.js"></script>
+    <script src="common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load featured error examples
+            loadFeaturedErrors();
+            
+            // 初始化返回顶部按钮
+            initBackToTopButton();
+        });
+        
+        // 初始化返回顶部按钮
+        function initBackToTopButton() {
+            const backToTopBtn = document.getElementById('back-to-top');
+            const header = document.querySelector('header');
+            
+            // 检测页面滚动，决定按钮显示或隐藏
+            window.addEventListener('scroll', function() {
+                const headerBottom = header.getBoundingClientRect().bottom;
+                
+                if (headerBottom < 0) {
+                    backToTopBtn.classList.add('visible');
+                } else {
+                    backToTopBtn.classList.remove('visible');
+                }
+            });
+            
+            // 点击按钮返回顶部
+            backToTopBtn.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        }
+
+        function loadFeaturedErrors() {
+            // Featured error IDs - using the template errors
+            const featuredErrorIds = [
+                "err_template_nontype_parm_bad_type",
+                "err_template_nontype_parm_different_type",
+                "err_template_nontype_parm_incomplete",
+                "err_template_nontype_parm_not_structural",
+                "err_template_nontype_parm_rvalue_ref",
+                "err_template_outside_namespace_or_class_scope",
+                "err_template_param_default_arg_missing",
+                "err_template_param_default_arg_redefinition",
+                "err_template_param_different_kind",
+                "err_template_param_list_different_arity"
+            ];
+            
+            const container = document.getElementById('featured-errors-container');
+            
+            // First initialize the diagnostic parser
+            window.diagnosticParser.initialize()
+                .then(() => {
+                    const fragment = document.createDocumentFragment();
+                    const promises = [];
+                    
+                    for (const errorId of featuredErrorIds) {
+                        promises.push(
+                            fetch(`errors/${errorId}.json`)
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error(`Failed to load ${errorId}`);
+                                    }
+                                    return response.json();
+                                })
+                                .then(errorData => {
+                                    // Get diagnostic info for this error
+                                    const diagnosticInfo = window.diagnosticParser.getDiagnosticInfo(errorData.id);
+                                    const errorCard = createErrorCard(errorData, diagnosticInfo);
+                                    fragment.appendChild(errorCard);
+                                })
+                                .catch(error => {
+                                    console.error(`Error loading ${errorId}:`, error);
+                                })
+                        );
+                    }
+                    
+                    Promise.all(promises).then(() => {
+                        container.appendChild(fragment);
+                        
+                        // Apply syntax highlighting
+                        document.querySelectorAll('pre code').forEach(block => {
+                            hljs.highlightElement(block);
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading diagnostic parser:', error);
+                    container.innerHTML = `<div class="error-message">Error loading featured errors: ${error.message}</div>`;
+                });
+        }
+    </script>
 </body>
 </html> 

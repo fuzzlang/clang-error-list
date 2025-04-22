@@ -300,4 +300,14 @@ footer p {
     padding: 20px;
     color: #666;
     font-style: italic;
+}
+
+.search-results-info {
+    margin: 10px 0 20px;
+    padding: 8px 15px;
+    background-color: #f0f5ff;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: #333;
+    border-left: 4px solid #4a6bdf;
 } 

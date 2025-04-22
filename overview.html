@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overview - Clang Error Documentation</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Clang Error Documentation</h1>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search for error codes...">
+                <button id="searchButton">Search</button>
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="overview.html">Overview</a></li>
+                <li><a href="error-list.html">Error List</a></li>
+                <li><a href="contributing.html">Contributing</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section id="overview">
+            <h2>Overview</h2>
+            <p>
+                Welcome to the Clang Error Documentation. This resource provides detailed information about Clang compiler errors,
+                including error codes, explanations, and code examples demonstrating the errors and how to fix them.
+            </p>
+            <p>
+                Clang is a C, C++, Objective-C, and Objective-C++ compiler which is designed to be compatible with GCC.
+                Understanding compiler errors is essential for effective debugging and code improvement.
+            </p>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Fuzzlang Team. All rights reserved.</p>
+            <p>This is an unofficial resource and is not affiliated with the LLVM Project or Clang.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="common.js"></script>
+
+    <!-- 添加返回顶部按钮 -->
+    <div id="back-to-top" class="back-to-top-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+    </div>
+
+    <style>
+        .home-link {
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .home-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* 返回顶部按钮样式 */
+        .back-to-top-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #4a6bdf;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+        
+        .back-to-top-btn:hover {
+            background-color: #3a5bcf;
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+        }
+        
+        .back-to-top-btn.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        @media (max-width: 768px) {
+            .back-to-top-btn {
+                bottom: 20px;
+                right: 20px;
+                width: 45px;
+                height: 45px;
+            }
+        }
+    </style>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化返回顶部按钮
+            initBackToTopButton();
+        });
+        
+        // 初始化返回顶部按钮
+        function initBackToTopButton() {
+            const backToTopBtn = document.getElementById('back-to-top');
+            const header = document.querySelector('header');
+            
+            // 检测页面滚动，决定按钮显示或隐藏
+            window.addEventListener('scroll', function() {
+                const headerBottom = header.getBoundingClientRect().bottom;
+                
+                if (headerBottom < 0) {
+                    backToTopBtn.classList.add('visible');
+                } else {
+                    backToTopBtn.classList.remove('visible');
+                }
+            });
+            
+            // 点击按钮返回顶部
+            backToTopBtn.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        }
+    </script>
+</body>
+</html> 
