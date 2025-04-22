@@ -11,7 +11,30 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize search functionality
     initializeSearch();
+    
+    // Highlight current active navigation item
+    highlightActiveNavItem();
 });
+
+/**
+ * Highlight the current active navigation item
+ */
+function highlightActiveNavItem() {
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll('nav ul li a');
+    
+    navLinks.forEach(link => {
+        const linkPath = link.getAttribute('href');
+        
+        // Check if it's the current page
+        if (currentPath.endsWith(linkPath) || 
+            (currentPath.endsWith('/') && linkPath === 'index.html')) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+}
 
 /**
  * Initialize common components like footer

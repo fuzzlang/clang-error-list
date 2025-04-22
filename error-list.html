@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Error List - Clang Error Documentation</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="mobile-styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
     <script>hljs.highlightAll();</script>
@@ -53,7 +54,7 @@
     <script src="script.js"></script>
     <script src="common.js"></script>
 
-    <!-- 添加返回顶部按钮 -->
+    <!-- Back to top button -->
     <div id="back-to-top" class="back-to-top-btn">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="18 15 12 9 6 15"></polyline>
@@ -70,7 +71,7 @@
             text-decoration: underline;
         }
         
-        /* 返回顶部按钮样式 */
+        /* Back to top button styles */
         .back-to-top-btn {
             position: fixed;
             bottom: 30px;
@@ -114,16 +115,16 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // 初始化返回顶部按钮
+            // Initialize back to top button
             initBackToTopButton();
         });
         
-        // 初始化返回顶部按钮
+        // Initialize back to top button
         function initBackToTopButton() {
             const backToTopBtn = document.getElementById('back-to-top');
             const header = document.querySelector('header');
             
-            // 检测页面滚动，决定按钮显示或隐藏
+            // Detect page scroll to show/hide button
             window.addEventListener('scroll', function() {
                 const headerBottom = header.getBoundingClientRect().bottom;
                 
@@ -134,7 +135,7 @@
                 }
             });
             
-            // 点击按钮返回顶部
+            // Click button to scroll back to top
             backToTopBtn.addEventListener('click', function() {
                 window.scrollTo({
                     top: 0,

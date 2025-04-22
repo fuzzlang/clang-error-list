@@ -987,7 +987,7 @@ function createErrorCard(errorData, diagnosticInfo) {
         <div class="error-description">
             <p>${errorData.description}</p>
             ${diagnosticInfo ? `
-            <p><strong>Message Template:</strong> ${escapeHtml(diagnosticInfo.template)}</p>
+            <p><strong>Message Template:</strong> <span class="code-msg">${escapeHtml(diagnosticInfo.template)}</span></p>
             <p><strong>Type:</strong> ${diagnosticInfo.type}</p>
             <p><strong>Source:</strong> ${diagnosticInfo.fileName.split('/').pop()}</p>
             ` : ''}
