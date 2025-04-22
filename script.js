@@ -729,12 +729,15 @@ function updateSearchResultsInfo(query, foundCount, pagination) {
     resultsInfo.className = 'search-results-info';
     
     if (query !== '') {
+        resultsInfo.style.display = 'block';
+        
         let infoText = `Found ${foundCount} result${foundCount !== 1 ? 's' : ''} for "${query}"`;
         if (pagination && pagination.totalPages > 1) {
             infoText += ` (showing ${(pagination.currentPage - 1) * resultsPerPage + 1}-${Math.min(pagination.currentPage * resultsPerPage, foundCount)} of ${foundCount})`;
         }
         resultsInfo.textContent = infoText;
     } else {
+        resultsInfo.style.display = 'none';
         resultsInfo.textContent = '';
     }
     
