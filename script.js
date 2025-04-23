@@ -728,8 +728,20 @@ function updateSearchResultsInfo(query, foundCount, pagination) {
     resultsInfo.id = 'search-results-info';
     resultsInfo.className = 'search-results-info';
     
+    const descriptionElement = document.getElementById('error-list-description');
+    
     if (query !== '') {
+        // Show search results info
         resultsInfo.style.display = 'block';
+        
+        // Update description text for search context
+        if (descriptionElement) {
+            if (foundCount > 0) {
+                descriptionElement.textContent = 'Search results for your query:';
+            } else {
+                descriptionElement.textContent = 'No results found for your search:';
+            }
+        }
         
         let infoText = `Found ${foundCount} result${foundCount !== 1 ? 's' : ''} for "${query}"`;
         if (pagination && pagination.totalPages > 1) {
@@ -737,8 +749,14 @@ function updateSearchResultsInfo(query, foundCount, pagination) {
         }
         resultsInfo.textContent = infoText;
     } else {
+        // Hide search results info
         resultsInfo.style.display = 'none';
         resultsInfo.textContent = '';
+        
+        // Reset description to default
+        if (descriptionElement) {
+            descriptionElement.textContent = 'Below is a comprehensive list of Clang error codes with explanations and examples:';
+        }
     }
     
     const errorListSection = document.getElementById('error-list');
