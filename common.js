@@ -1,5 +1,5 @@
 /**
- * Common components and functionality for Clang Error Documentation website
+ * Common components and functionality for Clang Error Index website
  */
 
 document.addEventListener('DOMContentLoaded', function() {
