@@ -310,4 +310,74 @@ footer p {
     font-size: 0.9rem;
     color: #333;
     border-left: 4px solid #4a6bdf;
+}
+
+.section-title {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1.5rem;
+    background-color: #f0f4ff;
+    border-left: 4px solid #4a6bdf;
+    border-radius: 4px;
+    font-size: 1.25rem;
+    color: #333;
+    width: 100%;
+}
+
+#error-examples-container, #td-diagnostics-container {
+    width: 100%;
+    margin-bottom: 2rem;
+}
+
+#error-examples-container .section-title, 
+#td-diagnostics-container .section-title {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+#error-examples-container .error-card, 
+#td-diagnostics-container .error-card {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Make sure sections display in the right order */
+#error-list-container {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Fix pagination display issues */
+.td-pagination-controls {
+    clear: both;
+    width: 100%;
+    max-width: 400px;
+    margin: 30px auto;
+}
+
+.td-range-info {
+    margin-top: 20px;
+    clear: both;
+    width: 100%;
+}
+
+/* New styles for pagination and card containers */
+.pagination-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 30px;
+    width: 100%;
+}
+
+.td-cards-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Highlight err_ prefixed diagnostics */
+.error-card[id^="err_"] h3 {
+    color: #e53935 !important;
 } 
